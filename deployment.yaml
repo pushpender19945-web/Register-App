@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: register-app
-          image: ashfaque9x/register-app-pipeline
+          image: ashfaque9x/register-app-pipeline:latest
           ports:
             - containerPort: 8080
