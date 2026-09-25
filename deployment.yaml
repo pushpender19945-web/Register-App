@@ -16,6 +16,6 @@ spec:
     spec:
       containers:
         - name: register-app
-          image: pushpender365/register-app-pipeline:1.0.0-1
+          image: ashfaque9x/register-app-pipeline
           ports:
             - containerPort: 8080
