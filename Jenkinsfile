@@ -83,13 +83,19 @@ pipeline {
         }
     }
 }
-        stage('Trigger CD Pipeline')
-            steps {
-                script {
-                   sh "curl -v -k --user cloudster:$(JENKINS_API_TOKEN) -X POST -H 'cache-control: no-cache' -H 'content-type: application/x-www-form-urlencoded'
+        stage('Trigger CD Pipeline') {
+    steps {
+        sh """
+            curl -v -k -X POST \
+            -H 'cache-control: no-cache' \
+            -H 'content-type: application/x-www-form-urlencoded' \
+            --data 'IMAGE_TAG=${IMAGE_TAG}' \
+            'http://34.207.252.242:8080/job/gitops-register-app-cd/buildWithParameters?token=gitops-token'
+        """
         }
-     }
+    }
 }
+    
             
                 
             
