@@ -53,7 +53,7 @@ pipeline {
                 }
             }
         }
-        
+
         stage('Quality Gate') {
             steps {
                 timeout(time: 5, unit: 'MINUTES') {
@@ -61,45 +61,49 @@ pipeline {
                 }
             }
         }
-        stage("Trivy Scan") {
+
+        stage('Trivy Scan') {
             steps {
                 script {
                     sh '''
-                    docker run -v /var/run/docker.sock:/var/run/docker.sock aquasec/trivy \
-                    image ashfaque9x/register-app-pipeline:latest \
-                    --no-progress \
-                    --scanners vuln \
-                    --exit-code 0 \
-                    --severity HIGH,CRITICAL \
-                    --format table
+                        docker run --rm \
+                        -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy:latest \
+                        image \
+                        ashfaque9x/register-app-pipeline:latest \
+                        --no-progress \
+                        --scanners vuln \
+                        --exit-code 0 \
+                        --severity HIGH,CRITICAL \
+                        --format table
                     '''
                 }
-            )
+            }
         }
+
         stage('Cleanup Artifacts') {
             steps {
-              script {
-                  sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG}"
-                  sh "docker rmi ${IMAGE_NAME}:latest"
+                script {
+                    sh "docker rmi ${IMAGE_NAME}:${IMAGE_TAG} || true"
+                    sh "docker rmi ${IMAGE_NAME}:latest || true"
+                }
+            }
         }
-    }
-}
+
         stage('Trigger CD Pipeline') {
-    steps {
-        script {
-            sh """
-                curl -v -k \
-                --user pushpender:${JENKINS_API_TOKEN} \
-                -X POST \
-                -H 'cache-control: no-cache' \
-                -H 'content-type: application/x-www-form-urlencoded' \
-                --data 'IMAGE_TAG=${IMAGE_TAG}' \
-                'http://ec2-34-207-252-242.compute-1.amazonaws.com:8080/job/gitops-register-app-cd/buildWithParameters?token=gitops-token'
-            """
+            steps {
+                script {
+                    sh """
+                        curl -v -k \
+                        --user pushpender:${JENKINS_API_TOKEN} \
+                        -X POST \
+                        -H 'cache-control: no-cache' \
+                        -H 'content-type: application/x-www-form-urlencoded' \
+                        --data 'IMAGE_TAG=${IMAGE_TAG}' \
+                        'http://34.207.252.242:8080/job/gitops-register-app-cd/buildWithParameters?token=gitops-token'
+                    """
+                }
+            }
         }
     }
 }
-    
-            
-                
-            
